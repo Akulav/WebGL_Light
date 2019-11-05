@@ -227,6 +227,7 @@ function init() {
     gl.vertexAttribPointer(vColors, 4, gl.FLOAT, false, 4 * Float32Array.BYTES_PER_ELEMENT, 0);
     gl.enableVertexAttribArray(vColors);
   */
+  //interaction
   document.addEventListener("keydown", keyDownTextField, false);
   function keyDownTextField(e) {
     var keyCode = e.keyCode;
