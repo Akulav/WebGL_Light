@@ -110,7 +110,7 @@
       float Ks = pow( max(dot(N, H), 0.0), shininess );
       float Ks2 = pow( max(dot(N, H2), 0.0), shininess );
       float Ks3 = pow( max(dot(N, H3), 0.0), shininess );
-      vec4  specular =(Ks + Ks2 + Ks3 )* specularProduct;
+      vec4  specular =(Ks + Ks2 + Ks3 ) * specularProduct;
   
       if( dot(L, N) < 0.0 ) {
     specular = vec4(0.0, 0.0, 0.0, 1.0);
@@ -118,7 +118,7 @@
 
     //fragColor = vColors;
     gl_Position = projectionMatrix * modelViewMatrix*   tr * rz * ry * rx * sc * vPosition;
-    fragColor = (ambient + diffuse +specular);
+    fragColor = (ambient + diffuse + specular);
     
     }
   </script>
@@ -154,7 +154,9 @@
   <button id="Button9" align="center">Add cube</button>
   <button id="Button11" align="center">Add Pyramid</button>
   <button id="Button12" align="center">Add Sphere</button>
+  <!--
   <button id="Button13" align="center">Add Cone</button>
+  //-->
   <button id="Shine" align="center">Shine++</button>
   <button id="Shine-" align="center">Shine--</button>
   <select id="SelectObject" align="center"></select>
@@ -163,6 +165,11 @@
     <option>Red</option>
     <option>Green</option>
     <option>Random</option>
+  </select>
+  <select id="SelectLight" align="center">
+    <option>Light 1</option>
+    <option>Light 2</option>
+    <option>Light 3</option>
   </select>
 </div>
 <div align="center">
