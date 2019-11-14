@@ -187,7 +187,7 @@ function tetrahedron2(a, b, c, d, n) {
   divideTriangle2(a, d, b, n);
   divideTriangle2(a, c, d, n);
 }
-tetrahedron2(va, vb, vc, vd, 8);
+tetrahedron2(va, vb, vc, vd, 9);
 
 //end sphere light
 //initialization
@@ -227,7 +227,6 @@ function init() {
     gl.vertexAttribPointer(vColors, 4, gl.FLOAT, false, 4 * Float32Array.BYTES_PER_ELEMENT, 0);
     gl.enableVertexAttribArray(vColors);
   */
-  //interaction
   document.addEventListener("keydown", keyDownTextField, false);
   function keyDownTextField(e) {
     var keyCode = e.keyCode;
@@ -551,7 +550,7 @@ class Drawable {
     gl.enableVertexAttribArray(this.vAttributeLocation);
     gl.bindBuffer(gl.ARRAY_BUFFER, this.nBuffer);
 
-    this.vertices.length == 36 ? gl.vertexAttribPointer(this.vNormal, 3, gl.FLOAT, false, 0, 0) : gl.vertexAttribPointer(this.vNormal, 4, gl.FLOAT, false, 0, 0);
+    this.vertices.length == 36 ? gl.vertexAttribPointer(this.vNormal, 3, gl.FLOAT, false, 0, 0) : gl.vertexAttribPointer(this.vNormal, 3, gl.FLOAT, false, 0, 0);
 
     gl.enableVertexAttribArray(this.vNormal);
     //gl.bindBuffer(gl.ARRAY_BUFFER, this.cBuffer);
@@ -570,7 +569,7 @@ class Drawable {
     gl.uniform3fv(this.trCoeffLoc, this.trCoeff);
 
     if (!this.flag) {
-      this.theta[this.axis] += 0.1;
+      this.theta[this.axis] += 0.2;
     }
 
     gl.uniformMatrix4fv(this.modelViewMatrixLoc, false, flatten(this.modelViewMatrix));
