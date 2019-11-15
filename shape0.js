@@ -58,6 +58,20 @@ for (let angle = 0; angle <= 360; angle += 0) {
 //end of cone
 //start of cube
 
+
+//
+
+function hexToRgb(hex) {
+  var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result ? [
+    parseInt(result[1], 16) / 255,
+    parseInt(result[2], 16) / 255,
+    parseInt(result[3], 16) / 255,
+    1.0]
+    : null;
+}
+
+//
 var pointsArray = [];
 var pointsArrayPrism = [];
 var normalsArray = [];
@@ -436,6 +450,73 @@ function init() {
       console.log("2")
     }
   };
+
+  document.getElementById("Specular").onchange = function () {
+    let hex = document.getElementById("Specular").value;
+    let spec = hexToRgb(hex);
+    for (i = 0; i <= toDraw.length; i++) {
+      select = toDraw[i];
+      if (LightSelection == 0) {
+        Light1.lightSpecular = spec;
+        select.specularProduct = mult(Light1.lightSpecular, select.materialSpecular);
+      }
+      if (LightSelection == 1) {
+        Light2.lightSpecular = spec;
+        select.specularProduct = mult(Light2.lightSpecular, select.materialSpecular);
+      }
+      if (LightSelection == 2) {
+        Light3.lightSpecular = spec;
+        select.specularProduct = mult(Light3.lightSpecular, select.materialSpecular);
+      }
+    }
+  };
+
+  document.getElementById("Diffuse").onchange = function () {
+    let hex = document.getElementById("Diffuse").value;
+    let diff = hexToRgb(hex);
+    for (i = 0; i <= toDraw.length; i++) {
+      select = toDraw[i];
+      if (LightSelection == 0) {
+        Light1.lightSpecular = diff;
+        select.specularProduct = mult(Light1.lightDiffuse, select.materialDiffuse);
+      }
+      if (LightSelection == 1) {
+        Light2.lightSpecular = diff;
+        select.specularProduct = mult(Light2.lightDiffuse, select.materialDiffuse);
+      }
+      if (LightSelection == 2) {
+        Light3.lightSpecular = diff;
+        select.specularProduct = mult(Light3.lightDiffuse, select.materialDiffuse);
+      }
+    }
+  };
+
+  document.getElementById("DiffuseMaterial").onchange = function () {
+    let hex = document.getElementById("DiffuseMaterial").value;
+    let diff = hexToRgb(hex);
+    for (i = 0; i <= toDraw.length; i++) {
+      select = toDraw[i];
+      select.materialDiffuse = diff;
+      select.diffuseProduct = mult(Light1.lightDiffuse, select.materialDiffuse);
+      select.diffuseProduct = mult(Light2.lightDiffuse, select.materialDiffuse)
+      select.diffuseProduct = mult(Light3.lightDiffuse, select.materialDiffuse)
+    }
+  }
+  document.getElementById("SpecularMaterial").onchange = function () {
+    let hex = document.getElementById("SpecularMaterial").value;
+    let diff = hexToRgb(hex);
+    for (i = 0; i <= toDraw.length; i++) {
+      select = toDraw[i];
+      select.materialSpecular = diff;
+      select.specularProduct = mult(Light1.lightSpecular, select.materialSpecular);
+      select.specularProduct = mult(Light2.lightSpecular, select.materialSpecular)
+      select.specularProduct = mult(Light3.lightSpecular, select.materialSpecular)
+    }
+  }
+
+
+
+
   document.getElementById("xButton").onclick = function () {
     select.axis = select.xAxis;
     select.flag = false;
