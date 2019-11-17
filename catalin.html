@@ -16,10 +16,18 @@
     uniform float coeff;
     uniform vec3 trCoeff;
     attribute  vec3 vNormal;
+    attribute  vec3 vNormal2;
+    attribute  vec3 vNormal3;
     varying vec4 fColor;
     uniform vec4 lightPosition;
+    uniform vec4 lightPosition2;
+    uniform vec4 lightPosition3;
     uniform float shininess;
+    uniform float shininess2;
+    uniform float shininess3;
     uniform vec4 ambientProduct, diffuseProduct, specularProduct;
+    uniform vec4 ambientProduct2, diffuseProduct2, specularProduct2;
+    uniform vec4 ambientProduct3, diffuseProduct3, specularProduct3;
     uniform mat4 modelView;
     uniform mat4 projection;
     vec3 angles = radians( theta );
@@ -61,39 +69,56 @@
   );
 
       vec3 pos = -(modelViewMatrix * vPosition).xyz;
+     
     
       //fixed light postion
       
       vec3 light = lightPosition.xyz;
+      vec3 light2 = lightPosition2.xyz;
+      vec3 light3 = lightPosition3.xyz;
       float distance = length(light-pos);
+      float distance2 = length(light2-pos);
+      float distance3 = length(light3-pos);
       vec3 L = normalize( light - pos );
+      vec3 L2 = normalize( light2 - pos );
+      vec3 L3 = normalize( light3 - pos );
      
     
       vec3 E = normalize( -pos );
       vec3 H = normalize( L + E );
+      vec3 E2 = normalize( -pos );
+      vec3 H2 = normalize( L2 + E2 );
+      vec3 E3 = normalize( -pos );
+      vec3 H3 = normalize( L3 + E3 );
       
       vec4 NN = vec4(vNormal,0);
+      
   
       // Transform vertex normal into eye coordinates
          
-      vec3 N = normalize( (projectionMatrix*modelViewMatrix* tr * rz * ry * rx *NN).xyz);
+      vec3 N = normalize( (projectionMatrix*modelViewMatrix* tr * rz * ry * rx *sc *NN ).xyz);
+     
   
       // Compute terms in the illumination equation
       vec4 ambient = ambientProduct;
   
-      float Kd = max( dot(L, N), 0.0 )/(distance);
-      vec4  diffuse = Kd*diffuseProduct;
+      float Kd = max( dot(L, N), 0.0 )/distance;
+      float Kd2 = max( dot(L2, N), 0.0 )/distance2;
+      float Kd3 = max( dot(L3, N), 0.0 )/distance3;
+      vec4  diffuse = diffuseProduct*(Kd2+Kd3+Kd);
   
       float Ks = pow( max(dot(N, H), 0.0), shininess );
-      vec4  specular = Ks * specularProduct;
-      
+      float Ks2 = pow( max(dot(N, H2), 0.0), shininess );
+      float Ks3 = pow( max(dot(N, H3), 0.0), shininess );
+      vec4  specular =(Ks + Ks2 + Ks3 ) * specularProduct;
+  
       if( dot(L, N) < 0.0 ) {
     specular = vec4(0.0, 0.0, 0.0, 1.0);
       } 
 
     //fragColor = vColors;
-    gl_Position =projectionMatrix*modelViewMatrix*   tr * rz * ry * rx * sc *vPosition;
-    fragColor = (ambient + diffuse +specular);
+    gl_Position = projectionMatrix * modelViewMatrix*   tr * rz * ry * rx * sc * vPosition;
+    fragColor = (ambient + diffuse + specular);
     
     }
   </script>
@@ -129,7 +154,9 @@
   <button id="Button9" align="center">Add cube</button>
   <button id="Button11" align="center">Add Pyramid</button>
   <button id="Button12" align="center">Add Sphere</button>
+  <!--
   <button id="Button13" align="center">Add Cone</button>
+  //-->
   <button id="Shine" align="center">Shine++</button>
   <button id="Shine-" align="center">Shine--</button>
   <select id="SelectObject" align="center"></select>
@@ -138,6 +165,11 @@
     <option>Red</option>
     <option>Green</option>
     <option>Random</option>
+  </select>
+  <select id="SelectLight" align="center">
+    <option>Light 1</option>
+    <option>Light 2</option>
+    <option>Light 3</option>
   </select>
 </div>
 <div align="center">
