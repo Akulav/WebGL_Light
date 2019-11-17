@@ -58,6 +58,20 @@ for (let angle = 0; angle <= 360; angle += 0) {
 //end of cone
 //start of cube
 
+
+//
+
+function hexToRgb(hex) {
+  var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result ? [
+    parseInt(result[1], 16) / 255,
+    parseInt(result[2], 16) / 255,
+    parseInt(result[3], 16) / 255,
+    1.0]
+    : null;
+}
+
+//
 var pointsArray = [];
 var pointsArrayPrism = [];
 var normalsArray = [];
@@ -187,7 +201,7 @@ function tetrahedron2(a, b, c, d, n) {
   divideTriangle2(a, d, b, n);
   divideTriangle2(a, c, d, n);
 }
-tetrahedron2(va, vb, vc, vd, 6);
+tetrahedron2(va, vb, vc, vd, 8);
 
 //end sphere light
 //initialization
@@ -299,7 +313,7 @@ function init() {
     select.trCoeff[2] += 0.1;
   };
   document.getElementById("Button9").onclick = function () {
-    var cube = new Drawable(pointsArray, program, normalsArray, Light1, Light2, Light3);
+    var cube = new Drawable(pointsArray, program, normalsArray, Light1, Light2, Light3, 1);
     toDraw.push(cube);
     select = cube;
     var selected = document.getElementById("SelectObject");
@@ -311,7 +325,7 @@ function init() {
     i++;
   }
   document.getElementById("Button11").onclick = function () {
-    var Pyramid = new Drawable(pointsArrayPyramid, program, normalsArrayPyramid), Light1;
+    var Pyramid = new Drawable(pointsArrayPyramid, program, normalsArrayPyramid, Light1, Light2, Light3, 1);
     toDraw.push(Pyramid);
     select = Pyramid;
     var selected = document.getElementById("SelectObject");
@@ -323,7 +337,19 @@ function init() {
     i++;
   }
   document.getElementById("Button12").onclick = function () {
-    var sphere = new Drawable(pointsArraySphere, program, normalsArraySphere, Light1, Light2, Light3);
+    var sphere = new Drawable(pointsArraySphere, program, normalsArraySphere, Light1, Light2, Light3, 1);
+    toDraw.push(sphere);
+    select = sphere;
+    var selected = document.getElementById("SelectObject");
+    var opt = toDraw[i];
+    var el = document.createElement("option");
+    el.textContent = "Sphere" + i;
+    el.value = opt;
+    selected.appendChild(el);
+    i++;
+  }
+  document.getElementById("Special").onclick = function () {
+    var sphere = new Drawable(pointsArraySphere, program, normalsArraySphere, Light1, Light2, Light3, 0);
     toDraw.push(sphere);
     select = sphere;
     var selected = document.getElementById("SelectObject");
@@ -436,6 +462,73 @@ function init() {
       console.log("2")
     }
   };
+
+  document.getElementById("Specular").onchange = function () {
+    let hex = document.getElementById("Specular").value;
+    let spec = hexToRgb(hex);
+    for (i = 0; i <= toDraw.length; i++) {
+      select = toDraw[i];
+      if (LightSelection == 0) {
+        Light1.lightSpecular = spec;
+        select.specularProduct = mult(Light1.lightSpecular, toDraw[i].materialSpecular);
+      }
+      if (LightSelection == 1) {
+        Light2.lightSpecular = spec;
+        select.specularProduct = mult(Light2.lightSpecular, select.materialSpecular);
+      }
+      if (LightSelection == 2) {
+        Light3.lightSpecular = spec;
+        select.specularProduct = mult(Light3.lightSpecular, select.materialSpecular);
+      }
+    }
+  };
+
+  document.getElementById("Diffuse").onchange = function () {
+    let hex = document.getElementById("Diffuse").value;
+    let diff = hexToRgb(hex);
+    for (i = 0; i <= toDraw.length; i++) {
+      select = toDraw[i];
+      if (LightSelection == 0) {
+        Light1.lightSpecular = diff;
+        select.specularProduct = mult(Light1.lightDiffuse, toDraw[i].materialDiffuse);
+      }
+      if (LightSelection == 1) {
+        Light2.lightSpecular = diff;
+        select.specularProduct = mult(Light2.lightDiffuse, toDraw[i].materialDiffuse);
+      }
+      if (LightSelection == 2) {
+        Light3.lightSpecular = diff;
+        select.specularProduct = mult(Light3.lightDiffuse, toDraw[i].materialDiffuse);
+      }
+    }
+  };
+
+  document.getElementById("DiffuseMaterial").onchange = function () {
+    let hex = document.getElementById("DiffuseMaterial").value;
+    let diff = hexToRgb(hex);
+    for (i = 0; i <= toDraw.length; i++) {
+      select = toDraw[i];
+      toDraw[i].materialDiffuse = diff;
+      select.diffuseProduct = mult(Light1.lightDiffuse, toDraw[i].materialDiffuse);
+      select.diffuseProduct = mult(Light2.lightDiffuse, toDraw[i].materialDiffuse)
+      select.diffuseProduct = mult(Light3.lightDiffuse, toDraw[i].materialDiffuse)
+    }
+  }
+  document.getElementById("SpecularMaterial").onchange = function () {
+    let hex = document.getElementById("SpecularMaterial").value;
+    let diff = hexToRgb(hex);
+    for (i = 0; i <= toDraw.length; i++) {
+      select = toDraw[i];
+      select.materialSpecular = diff;
+      select.specularProduct = mult(Light1.lightSpecular, toDraw[i].materialSpecular);
+      select.specularProduct = mult(Light2.lightSpecular, toDraw[i].materialSpecular)
+      select.specularProduct = mult(Light3.lightSpecular, toDraw[i].materialSpecular)
+    }
+  }
+
+
+
+
   document.getElementById("xButton").onclick = function () {
     select.axis = select.xAxis;
     select.flag = false;
@@ -563,13 +656,14 @@ let Lights = [{ Light1 }, { Light2 }, { Light3 }];
 let LightSelection = 0;
 
 class Drawable {
-  constructor(vertices, program, normalsArray, Light1, Light2, Light3) {
+  constructor(vertices, program, normalsArray, Light1, Light2, Light3, number) {
     this.program = program;
     this.normalsArray = normalsArray;
     this.indexPyramid = indexPyramid;
     this.Light1 = Light1;
     this.Light2 = Light2;
     this.Light3 = Light3;
+    this.number = number;
     this.vBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, this.vBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, flatten(vertices), gl.STATIC_DRAW);
@@ -630,6 +724,10 @@ class Drawable {
     this.viewerPos = vec3(0.0, 0.0, -20.0);
     this.projection = ortho(-1, 1, -1, 1, -100, 100);
 
+
+
+  }
+  draw() {
     this.ambientProduct = mult(this.lightAmbient, this.materialAmbient);
 
     this.diffuseProduct = mult(this.Light1.lightDiffuse, this.materialDiffuse);
@@ -640,14 +738,15 @@ class Drawable {
 
     this.diffuseProduct3 = mult(this.Light3.lightDiffuse, this.materialDiffuse);
     this.specularProduct3 = mult(this.Light3.lightSpecular, this.materialSpecular);
-
-  }
-  draw() {
     gl.bindBuffer(gl.ARRAY_BUFFER, this.vBuffer);
     gl.vertexAttribPointer(this.vAttributeLocation, 4, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(this.vAttributeLocation);
     gl.bindBuffer(gl.ARRAY_BUFFER, this.nBuffer);
-    this.vertices.length == 36 ? gl.vertexAttribPointer(this.vNormal, 3, gl.FLOAT, false, 0, 0) : gl.vertexAttribPointer(this.vNormal, 4, gl.FLOAT, false, 0, 0);
+    if (this.number == 1) {
+      this.vertices.length == 36 ? gl.vertexAttribPointer(this.vNormal, 3, gl.FLOAT, false, 0, 0) : gl.vertexAttribPointer(this.vNormal, 4, gl.FLOAT, false, 0, 0);
+    }
+    else
+      this.vertices.length == 36 ? gl.vertexAttribPointer(this.vNormal, 3, gl.FLOAT, false, 0, 0) : gl.vertexAttribPointer(this.vNormal, 3, gl.FLOAT, false, 0, 0)
     gl.enableVertexAttribArray(this.vNormal);
     //gl.bindBuffer(gl.ARRAY_BUFFER, this.cBuffer);
     //gl.vertexAttribPointer(this.cAttributeLocation, 4, gl.FLOAT, false, 0, 0); // DESCRIBE THE DATA: EACH vertex has 4 values of type FLOAT
